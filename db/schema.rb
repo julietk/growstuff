@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121107012827) do
+ActiveRecord::Schema.define(:version => 20121214230336) do
 
   create_table "crops", :force => true do |t|
     t.string   "system_name",      :null => false
@@ -24,12 +24,35 @@ ActiveRecord::Schema.define(:version => 20121107012827) do
   add_index "crops", ["slug"], :name => "index_crops_on_slug", :unique => true
   add_index "crops", ["system_name"], :name => "index_crops_on_system_name"
 
+  create_table "gardens", :force => true do |t|
+    t.string   "name",       :null => false
+    t.integer  "user_id",    :null => false
+    t.string   "slug",       :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "gardens", ["slug"], :name => "index_gardens_on_slug", :unique => true
+  add_index "gardens", ["user_id"], :name => "index_gardens_on_user_id"
+
   create_table "scientific_names", :force => true do |t|
     t.string   "scientific_name", :null => false
     t.integer  "crop_id",         :null => false
     t.datetime "created_at",      :null => false
     t.datetime "updated_at",      :null => false
   end
+
+  create_table "updates", :force => true do |t|
+    t.integer  "user_id",    :null => false
+    t.string   "subject",    :null => false
+    t.text     "body",       :null => false
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+    t.string   "slug"
+  end
+
+  add_index "updates", ["created_at", "user_id"], :name => "index_updates_on_created_at_and_user_id"
+  add_index "updates", ["slug"], :name => "index_updates_on_slug", :unique => true
 
   create_table "users", :force => true do |t|
     t.string   "email",                  :default => "", :null => false
@@ -53,6 +76,7 @@ ActiveRecord::Schema.define(:version => 20121107012827) do
     t.datetime "updated_at",                             :null => false
     t.string   "username"
     t.string   "slug"
+    t.boolean  "tos_agreement"
   end
 
   add_index "users", ["confirmation_token"], :name => "index_users_on_confirmation_token", :unique => true

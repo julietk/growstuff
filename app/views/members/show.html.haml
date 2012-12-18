@@ -1,4 +1,48 @@
-- content_for :title, "#{@user.username}"
+- content_for :title, "#{@member.username}"
+- content_for :member_rss_username, "#{@member.username}"
+- content_for :member_rss_slug, "#{@member.slug}"
 
-%p
-  = "A Growstuff member since #{@user.created_at.strftime("%B %d, %Y")}."
+.row
+  .span3
+    = render :partial => "gravatar", :locals => { :email => @member.email }
+    %h4= @member.username
+
+    %p
+      = "Member since: #{@member.created_at.strftime("%B %d, %Y")}."
+    %p Location: Unknown
+
+  .span9
+    .tabbable
+      %ul.nav.nav-tabs
+        - first_garden = true
+        - @member.gardens.each do |g|
+          %li{:class => first_garden ? 'active' : '' }
+          - first_garden = false
+          = link_to g.name, "#garden#{g.id}", 'data-toggle' => 'tab'
+      .tab-content
+        - first_garden = true
+        - @member.gardens.each do |g|
+
+          %div{:class => ['tab-pane', first_garden ? 'active' : ''], :id => "#garden#{g.id}"}
+            - first_garden = false
+            .alert
+              %button.close{:type => 'button', 'data-dismiss' => 'alert'} ×
+              Note: these are a random selection, and don't represent actual plantings
+
+            %ul.thumbnails
+              - (1..4).each do
+                %li.span2
+                  = render :partial => "crops/thumbnail", :locals => { :crop => random_crop }
+
+            %p
+              and 20 more crops including:
+              - (1..20).each do
+                - @crop = random_crop
+                = @crop ? link_to(@crop.system_name, url_for(@crop)) : 'blah'
+
+            %p= link_to "More about #{@member.username}'s #{@member.gardens.first.name}...", url_for(@member.gardens.first)
+
+
+    %h3 Updates
+    - @member.updates.each do |update|
+      = render :partial => "updates/single", :locals => { :update => update, :subject => true }

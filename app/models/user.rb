@@ -2,6 +2,9 @@ class User < ActiveRecord::Base
   extend FriendlyId
   friendly_id :username, use: :slugged
 
+  has_many :updates
+  has_many :gardens
+
   # Include default devise modules. Others available are:
   # :token_authenticatable, :confirmable,
   # :lockable, :timeoutable and :omniauthable
@@ -11,12 +14,19 @@ class User < ActiveRecord::Base
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :username, :email, :password, :password_confirmation,
-    :remember_me, :login
+    :remember_me, :login, :tos_agreement
   # attr_accessible :title, :body
 
   # Virtual attribute for authenticating by either username or email
   # This is in addition to a real persisted field like 'username'
   attr_accessor :login
+
+  # Requires acceptance of the Terms of Service
+  validates_acceptance_of :tos_agreement, :allow_nil => false,
+    :accept => true
+
+  # Give each new user a default garden
+  after_create {|user| Garden.new(:name => "Garden", :user_id => user.id).save }
 
   # allow login via either username or email address
   def self.find_first_by_auth_conditions(warden_conditions)
@@ -27,5 +37,4 @@ class User < ActiveRecord::Base
       where(conditions).first
     end
   end
-
 end
